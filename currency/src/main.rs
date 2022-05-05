@@ -1,5 +1,5 @@
 use axum::{extract::Json, routing::get};
-
+use parking_lot::Mutex;
 async fn find(
     _: Authorization
 )
@@ -19,9 +19,8 @@ async fn main() {
         .unwrap();
 }
 
-
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
-struct Storage {
+struct Entry {
     hash: String,
     ledger: std::collections::HashMap<String, Entity>,
     diff: Transaction,
@@ -94,4 +93,35 @@ impl<T: Send> axum::extract::FromRequest<T> for Authorization {
             Err(WebServerError::IncorrectAuth)
         }
     }
+}
+
+
+pub fn read_bincode(filename: &String) -> Result<Arc<Mutex<Vec<Storage>>>> {
+    let target_path = std::fs::Path::new(filename);
+    if !target_path.exists() {
+        let new_map: Vec<Storage> = Vec::new();
+        let encoded: Vec<u8> = bincode::serialize(&new_map).unwrap();
+        std::fs::write(target_path, encoded)
+            .expect("failed to write to database file: check permissions");
+        return Vec::new();
+    }
+
+    let f = std::fs::OpenOptions::new()
+        .read(true)
+        .open(target_path)
+        .expect("Failed to open file");
+
+    let deserialized: dashmap::DashMap<String, String> =
+        bincode::deserialize_from(f).expect("Failed to deserialize database");
+    deserialized
+}
+
+pub fn save_bincode<P: AsRef<Path>>(
+    filename: P,
+    map: &dashmap::DashMap<String, String>,
+) -> Result<(), bincode::Error> {
+    let mut f = std::fs::OpenOptions::new().write(true).read(false).open(filename)?;
+    let encoded: Vec<u8> = bincode::serialize(&map)?;
+    f.write_all(&encoded)?;
+    Ok(())
 }
