@@ -1,3 +1,5 @@
+use std::io::Read;
+
 fn main() {
     let input_file = {
         let filename = match std::env::args().nth(1) {
@@ -16,12 +18,18 @@ fn main() {
     let mut instptr = 0usize;
     let mut depth = 0;
     while instptr < input.len() {
+        #[cfg(debug_assertions)]
+        println!(
+            "Instruction pointer: {instptr} ({}), Stack pointer: {ptr} ({})",
+            input[instptr], stack[ptr as usize]
+        );
         match input[instptr] {
             '>' => ptr += 1,
             '<' => ptr -= 1,
             '+' => stack[ptr as usize] += 1,
             '-' => stack[ptr as usize] -= 1,
-            '.' => writechar(&stack, ptr as usize),
+            '.' => printchar(&stack, ptr as usize),
+            ',' => getchar(&mut stack, ptr as usize),
             '[' => {
                 if stack[ptr as usize] == 0 {
                     instptr += 1;
@@ -36,8 +44,8 @@ fn main() {
                 }
             }
             ']' => {
-                if stack[ptr as usize] == 0 {
-                    instptr += 1;
+                if stack[ptr as usize] != 0 {
+                    instptr -= 1;
                     while input[instptr] != '[' || depth > 0 {
                         if input[instptr] == ']' {
                             depth += 1;
@@ -52,9 +60,19 @@ fn main() {
         }
         instptr += 1;
     }
+    println!();
 }
 
-fn writechar(stack: &[u8], ptr: usize) {
+fn printchar(stack: &[u8], ptr: usize) {
     print!("{}", char::from(stack[ptr]));
     std::io::Write::flush(&mut std::io::stdout()).unwrap();
+}
+
+fn getchar(stack: &mut [u8], ptr: usize) {
+    loop {
+        if let Some(next) = std::io::stdin().bytes().next().and_then(|res| res.ok()) {
+            stack[ptr] = next;
+            break;
+        }
+    }
 }
