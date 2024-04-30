@@ -1,2 +1,3 @@
 [workspace]
-members = ["dna", "population-squeeze", "individuals"]
+members = ["dna", "population-squeeze", "individuals", "pertsolve"]
+resolver = "2"
