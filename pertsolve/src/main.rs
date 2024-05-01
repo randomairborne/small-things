@@ -1,7 +1,12 @@
-use pertsolve::{find_a, find_r, find_r_hl, find_t};
+use pertsolve::{continuous};
 use std::io::Write;
 
 fn main() {
+    let output = continuous_compute();
+    println!("{input} = {output}");
+}
+
+fn continuous_compute() -> f64 {
     eprint!("Pick the a = Pe^(rt) value (or h) you wish to compute: ");
     std::io::stderr().flush().unwrap();
     let mut input = String::new();
@@ -9,25 +14,24 @@ fn main() {
         .read_line(&mut input)
         .expect("Failed to read stdin");
     let input = input.trim();
-    let output = match input.to_ascii_uppercase().trim() {
-        "A" => find_a(get_float("principal"), get_float("rate"), get_float("time")),
-        "T" => find_t(
+    match input.to_ascii_uppercase().trim() {
+        "A" => continuous::find_a(get_float("principal"), get_float("rate"), get_float("time")),
+        "T" => continuous::find_t(
             get_float("amount wanted"),
             get_float("principal"),
             get_float("rate"),
         ),
-        "R" => find_r(
+        "R" => continuous::find_r(
             get_float("amount wanted"),
             get_float("principal"),
             get_float("time"),
         ),
-        "H" | "HL" | "HALF LIFE" => find_r_hl(get_float("half life")),
+        "H" | "HL" | "HALF LIFE" => continuous::find_r_hl(get_float("half life")),
         _ => {
             eprintln!("Invalid choice");
-            return;
+            f64::NAN
         }
-    };
-    println!("{input} = {output}");
+    }
 }
 
 fn get_float(msg: &str) -> f64 {
