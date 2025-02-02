@@ -1,6 +1,4 @@
-fn pack(board: ChessBoard) -> SqueezedChessBoard {
-
-}
+fn pack(board: ChessBoard) -> SqueezedChessBoard {}
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
 struct SqueezedChessBoard(usize, usize, usize);
