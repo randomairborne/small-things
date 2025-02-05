@@ -1,3 +1,3 @@
 [workspace]
-members = ["dna", "population-squeeze", "individuals", "pertsolve", "spreadmeasures", "picofermibagel", "chess-squeeze", "linkedlist"]
+members = ["dna", "population-squeeze", "individuals", "pertsolve", "spreadmeasures", "picofermibagel", "chess-squeeze", "linkedlist", "randomize-solve"]
 resolver = "2"
